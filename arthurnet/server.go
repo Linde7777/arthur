@@ -2,6 +2,7 @@ package arthurnet
 
 import (
 	"fmt"
+	"main/arthurinterface"
 	"net"
 	"time"
 )
@@ -87,7 +88,7 @@ func (s *Server) Serve() {
 	}
 }
 
-func NewServer(name, ipVersion, ip string, port int) *Server {
+func NewServer(name, ipVersion, ip string, port int) arthurinterface.IServer {
 	return &Server{
 		Name:      name,
 		IPVersion: ipVersion,

@@ -8,12 +8,7 @@ import (
 )
 
 func TestServerBasic(t *testing.T) {
-	s := &Server{
-		Name:      "Arthur",
-		IPVersion: "tcp4",
-		IP:        "0.0.0.0",
-		Port:      1899,
-	}
+	s := NewServer("ArthurServer", "tcp4", "0.0.0.0", 1899)
 	go s.Serve()
 
 	// 等待服务端启动
