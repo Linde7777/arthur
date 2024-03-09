@@ -14,6 +14,26 @@ type Server struct {
 	Port      int
 }
 
+// demoHandleFunc 模拟用户端传进来的业务，后面会替换
+func demoHandleFunc(conn *net.TCPConn) error {
+	for {
+		buf := make([]byte, 512)
+		count, err := conn.Read(buf)
+		if err != nil {
+			fmt.Println("conn.Read err: ", err)
+			return err
+		}
+
+		messageToWrite := fmt.Sprintf("I am server, I have receive your message: %s",
+			string(buf[:count]))
+		_, err = conn.Write([]byte(messageToWrite))
+		if err != nil {
+			fmt.Println("conn.Write err: ", err)
+			return err
+		}
+	}
+}
+
 func (s *Server) Start() {
 	fmt.Printf("Server %s is starting, IPVersion: %s, IP: %s, Port: %d\n",
 		s.Name, s.IPVersion, s.IP, s.Port)
@@ -40,34 +60,20 @@ func (s *Server) Start() {
 			//	}()
 			//}
 			// 那就是无限循环创建goroutine, 会让机器爆炸
+			var connID uint32
 			conn, err := listener.AcceptTCP()
 			if err != nil {
 				fmt.Println("listener.AcceptTCP err: ", err)
 				continue
 			}
 
+			transactionConn := NewConnection(conn, connID, demoHandleFunc)
+			connID += 1
+
 			// 这个用户建立了实际连接后，单独开一个goroutine处理他的业务，
 			// 不要挡住其他用户建立实际连接.
 			// 这里简单模拟一下业务，后面会替换.
-			go func() {
-				buf := make([]byte, 512)
-				for {
-					count, err := conn.Read(buf)
-					if err != nil {
-						fmt.Println("conn.Read err: ", err)
-						continue
-					}
-
-					// 先简单模拟一下业务逻辑，做一个简单的回复功能
-					fmt.Printf("Receive data: %s\n", string(buf[:count]))
-					_, err = conn.Write([]byte("This is Arthur Morgan"))
-					if err != nil {
-						fmt.Println("conn.Write err: ", err)
-						continue
-					}
-				}
-			}()
-
+			go transactionConn.Start()
 		}
 	}()
 
