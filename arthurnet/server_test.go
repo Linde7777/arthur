@@ -11,7 +11,7 @@ func TestServerBasic(t *testing.T) {
 	s := NewServer("ArthurServer", "tcp4", "0.0.0.0", 1899)
 	go s.Serve()
 
-	// 等待服务端启动
+	fmt.Println("Sleep 3 seconds to wait server start")
 	time.Sleep(time.Second * 3)
 	go MockClient()
 	for {
@@ -28,7 +28,7 @@ func MockClient() {
 	}
 
 	for {
-		_, err = conn.Write([]byte("I am John Marston"))
+		_, err = conn.Write([]byte("Hi, I am client"))
 		if err != nil {
 			fmt.Println("conn write err: ", err)
 			return
@@ -40,7 +40,7 @@ func MockClient() {
 			fmt.Println("conn read err: ", err)
 			return
 		}
-		fmt.Printf("Receive from server: %s\n", string(buf[:count]))
+		fmt.Printf("client receive from server: %s\n", string(buf[:count]))
 	}
 
 }

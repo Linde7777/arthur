@@ -24,9 +24,8 @@ func demoHandleFunc(conn *net.TCPConn) error {
 			return err
 		}
 
-		messageToWrite := fmt.Sprintf("I am server, I have receive your message: %s",
-			string(buf[:count]))
-		_, err = conn.Write([]byte(messageToWrite))
+		fmt.Println("server receive from client: ", string(buf[:count]))
+		_, err = conn.Write([]byte("Hi, I am Server"))
 		if err != nil {
 			fmt.Println("conn.Write err: ", err)
 			return err
