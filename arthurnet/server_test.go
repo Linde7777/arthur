@@ -28,7 +28,7 @@ func MockClient() {
 	}
 
 	for {
-		_, err = conn.Write([]byte("I am John Marston"))
+		_, err = conn.Write([]byte("I am client."))
 		if err != nil {
 			fmt.Println("conn write err: ", err)
 			return
