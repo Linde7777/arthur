@@ -11,4 +11,5 @@ type IConnection interface {
 }
 
 // HandleFunc 是用户的实际业务，和链接绑定
-type HandleFunc func(conn *net.TCPConn, data []byte, cnt int) error
+// TODO: 做成泛型？
+type HandleFunc func(conn *net.TCPConn, data []byte) error
