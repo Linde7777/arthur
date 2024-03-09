@@ -11,7 +11,7 @@ func TestServerBasic(t *testing.T) {
 	s := NewServer("ArthurServer", "tcp4", "0.0.0.0", 1899)
 	go s.Serve()
 
-	// 等待服务端启动
+	fmt.Println("Sleep 3 seconds to wait server start")
 	time.Sleep(time.Second * 3)
 	go MockClient()
 	for {
