@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"main/arthurinterface"
 	"net"
+	"time"
 )
 
 type Connection struct {
@@ -15,11 +16,22 @@ type Connection struct {
 }
 
 func (c *Connection) Start() {
-	data := []byte("this is a message from demoHandleFunc")
-	err := c.handleFunc(c.conn, data)
-	if err != nil {
-		fmt.Println("handleFunc err: ", err)
-		return
+	// 连接调用Start后，除了调用handlerFUnc，可能还会有其他操作，所以放在goroutine里
+	go func() {
+		err := c.handleFunc(c.conn)
+		if err != nil {
+			fmt.Println("handleFunc err: ", err)
+			return
+		}
+	}()
+
+	for {
+		select {
+		case <-c.notifyToCloseChan:
+			return
+		default:
+			time.Sleep(2 * time.Second)
+		}
 	}
 }
 
@@ -29,6 +41,7 @@ func (c *Connection) Stop() {
 	}
 
 	c.IsClosed = true
+	c.notifyToCloseChan <- struct{}{}
 	err := c.conn.Close()
 	if err != nil {
 		fmt.Println("conn.Close err: ", err)
