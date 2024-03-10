@@ -2,13 +2,42 @@ package arthurnet
 
 import (
 	"fmt"
+	"main/arthurinterface"
 	"net"
 	"testing"
 	"time"
 )
 
+type MyOwnRouter struct {
+	BaseRouter
+}
+
+func (mor *MyOwnRouter) PreHandle(req arthurinterface.IRequest) error {
+	fmt.Println("running PreHandle")
+	return nil
+}
+
+func (mor *MyOwnRouter) Handle(req arthurinterface.IRequest) error {
+	fmt.Println("running Handle")
+	//conn := req.GetConn()
+	//_, err := conn.GetTCPConn().Write([]byte("Hello, I am server"))
+	//if err != nil {
+	//	fmt.Println("Handle Write err: ", err)
+	//	return err
+	//}
+	return nil
+}
+
+func (mor *MyOwnRouter) PostHandle(req arthurinterface.IRequest) error {
+	fmt.Println("running PostHandle")
+	return nil
+}
+
 func TestServerBasic(t *testing.T) {
 	s := NewServer("ArthurServer", "tcp4", "0.0.0.0", 1899)
+
+	myOwnRouter := &MyOwnRouter{}
+	s.AddRouter(myOwnRouter)
 	go s.Serve()
 
 	fmt.Println("Sleep 3 seconds to wait server start")

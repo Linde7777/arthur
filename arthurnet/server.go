@@ -12,6 +12,7 @@ type Server struct {
 	IPVersion string
 	IP        string
 	Port      int
+	router    arthurinterface.IRouter
 }
 
 // demoHandleFunc 模拟用户端传进来的业务，后面会替换
@@ -66,7 +67,7 @@ func (s *Server) Start() {
 				continue
 			}
 
-			transactionConn := NewConnection(conn, connID, demoHandleFunc)
+			transactionConn := NewConnection(conn, connID, s.router)
 			connID += 1
 
 			// 这个用户建立了实际连接后，单独开一个goroutine处理他的业务，
@@ -93,11 +94,17 @@ func (s *Server) Serve() {
 	}
 }
 
+func (s *Server) AddRouter(router arthurinterface.IRouter) {
+	s.router = router
+	fmt.Println("router is added")
+}
+
 func NewServer(name, ipVersion, ip string, port int) arthurinterface.IServer {
 	return &Server{
 		Name:      name,
 		IPVersion: ipVersion,
 		IP:        ip,
 		Port:      port,
+		router:    nil,
 	}
 }

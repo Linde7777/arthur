@@ -12,18 +12,34 @@ type Connection struct {
 	connID            uint32
 	IsClosed          bool
 	notifyToCloseChan chan struct{}
-	handleFunc        arthurinterface.HandleFunc
+	router            arthurinterface.IRouter
 }
 
 func (c *Connection) Start() {
-	// 连接调用Start后，除了调用handlerFUnc，可能还会有其他操作，所以放在goroutine里
-	go func() {
-		err := c.handleFunc(c.conn)
+	req := &Request{
+		conn: c,
+	}
+
+	// 连接调用Start后，除了调用路由里面的方法，可能还会有其他操作，所以放在goroutine里
+	go func(req arthurinterface.IRequest) {
+		err := c.router.PreHandle(req)
 		if err != nil {
-			fmt.Println("handleFunc err: ", err)
+			fmt.Println("PreHandle err: ", err)
 			return
 		}
-	}()
+
+		err = c.router.Handle(req)
+		if err != nil {
+			fmt.Println("Handle err: ", err)
+			return
+		}
+
+		err = c.router.PostHandle(req)
+		if err != nil {
+			fmt.Println("PostHandle err: ", err)
+			return
+		}
+	}(req)
 
 	for {
 		select {
@@ -54,12 +70,16 @@ func (c *Connection) GetConnID() uint32 {
 	return c.connID
 }
 
-func NewConnection(conn *net.TCPConn, connID uint32, handleFunc arthurinterface.HandleFunc) *Connection {
+func (c *Connection) GetRouter() arthurinterface.IRouter {
+	return c.router
+}
+
+func NewConnection(conn *net.TCPConn, connID uint32, router arthurinterface.IRouter) *Connection {
 	return &Connection{
 		conn:              conn,
 		connID:            connID,
 		IsClosed:          false,
 		notifyToCloseChan: make(chan struct{}),
-		handleFunc:        handleFunc,
+		router:            router,
 	}
 }
