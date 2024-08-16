@@ -53,12 +53,12 @@ func (s *Server) Start() {
 
 		for {
 			// 肯定得是按顺序建立实际连接，如果是
-			//for{
+			// for{
 			//	go func() {
 			//		conn,err:=listener.AcceptTCP()
 			//      do something
 			//	}()
-			//}
+			// }
 			// 那就是无限循环创建goroutine, 会让机器爆炸
 			var connID uint32
 			conn, err := listener.AcceptTCP()
@@ -67,13 +67,13 @@ func (s *Server) Start() {
 				continue
 			}
 
-			transactionConn := NewConnection(conn, connID, s.router)
+			bussinessConn := NewConnection(conn, connID, s.router)
 			connID += 1
 
 			// 这个用户建立了实际连接后，单独开一个goroutine处理他的业务，
 			// 不要挡住其他用户建立实际连接.
 			// 这里简单模拟一下业务，后面会替换.
-			go transactionConn.Start()
+			go bussinessConn.Start()
 		}
 	}()
 
@@ -87,9 +87,9 @@ func (s *Server) Stop() {
 func (s *Server) Serve() {
 	s.Start()
 
-	//todo: 这里可以做一些启动服务后的额外业务
+	// todo: 这里可以做一些启动服务后的额外业务
 	for {
-		//阻塞，不然主goroutine退出了，服务就退出了
+		// 阻塞，不然主goroutine退出了，服务就退出了
 		time.Sleep(20 * time.Second)
 	}
 }
